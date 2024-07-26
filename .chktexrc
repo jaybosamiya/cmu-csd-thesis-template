@@ -1,0 +1,26 @@
+# Suppress warnings on these commands having spaces after them. Since I've
+# defined them to have \xspace in them, we _expect_ them to have spaces after
+# them.
+Silent
+{
+    \xxx
+    \eg
+}
+CmdLine
+{
+}
+UserWarn
+{
+    # I regularly keep putting "up to" together as one for some reason
+    upto
+}
+UserWarnRegex
+{
+    # I use contractions too often, warn on them
+    (?!#Avoid! contractions)[A-Za-x]*n't
+    (?!#cannot! is! more! commonly! used! except! for! situations! like! can! not! only...)[Cc]an! not
+    # Accidentally using an `_` in a texttt which freaks LaTeX out
+    (?!#Should! use! backslash! with! underscore)\\texttt{[^}\\$]*_[^}]*}
+    # I prefer using `na\"{\i}ve` instead of `naive`
+    (?!#Naive! will! not! have! the! double-dot! when! written! this! way)[^\][Nn]aive
+}

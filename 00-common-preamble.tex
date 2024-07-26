@@ -1,0 +1,201 @@
+% -*- mode: latex; TeX-master: "./thesis" -*-
+
+% This file is Jay Bosamiya's common preamble code that is useful across
+% multiple papers. If something is specific to the current paper, it
+% should go into `00-paper-commands.tex` instead.
+
+% Flag for distinguishing submission commands
+\newif\ifsubmit{}
+\submittrue{}
+\submitfalse{}                  % Comment this line out to get the submission view
+
+% Add useful commands for commenting things, adding todos,
+% etc. Comments are completely ignored in submission mode, but todos
+% and citationneeded commands will show warnings in submission
+% mode. This is to ensure that we don't miss out on any important
+% todos. At the time of submission, we should hopefully have 0
+% warnings overall.
+\ifsubmit%
+  \newcommand*{\comment}[1]{}
+  \newcommand*{\citationneeded}[1]{\PackageWarning{SubmissionCheck}{Citation still needed: #1}}
+  \newcommand*{\todo}[1]{\PackageWarning{SubmissionCheck}{TODO still remains: #1}}
+  \newcommand*{\maxpageshere}[1]{%
+    \ifnum\value{page}>#1%
+      \PackageWarning{SubmissionCheck}{Page count is \thepage; max allowed: #1}%
+    \fi%
+  }
+  \newcommand*{\word}[0]{\PackageWarning{SubmissionCheck}{Missing word on page \thepage}\textcolor{red}{WORD}\xspace}
+  \newcommand*{\maybecut}[1]{\PackageWarning{SubmissionCheck}{Expected to cut text on \thepage}\textcolor{red}{\sout{#1}}}
+  \newcommand*{\xxx}[0]{\PackageWarning{SubmissionCheck}{XXX on page \thepage}\textcolor{red}{XXX}\xspace}
+\else
+  \renewcommand*{\linenumberfont}{\normalfont\tiny\sffamily\color{lightgray}}
+  \linenumbers{}
+  \newcommand*{\comment}[1]{\ding{43}\textcolor{Plum}{[#1]}}
+  \newcommand*{\citationneeded}[1]{\ding{46}\textcolor{purple}{[cite:#1]}}
+  \newcommand*{\todo}[1]{\ding{45}\textcolor{BrickRed}{[TODO\@: #1]}}
+  \newcommand*{\maxpageshere}[1]{\par{}\textcolor{BrickRed}{\hrule\hfill[Page limit: #1]\hfill~\hrule}\par{}}
+  \newcommand*{\word}[0]{\textcolor{BrickRed}{[WORD]}\xspace}
+  \newcommand*{\xxx}[0]{\par\noindent\textcolor{RubineRed}{\rule{\textwidth}{1pt}}\\\centerline{\textcolor{RubineRed}{[XXX]}}\\\textcolor{RubineRed}{\rule{\textwidth}{1pt}}}
+  \newcommand*{\maybecut}[1]{\textcolor{Dandelion}{[Consider cutting: \sout{#1}]}}
+\fi
+
+\newcommand*{\submissionreminder}[1]{\PackageWarning{SubmissionCheck}{#1}}
+
+% Set up cref to capitalize things
+\crefname{chapter}{Chapter}{Chapters}
+\Crefname{chapter}{Chapter}{Chapters}
+\crefname{section}{Section}{Sections}
+\Crefname{section}{Section}{Sections}
+\crefname{figure}{Figure}{Figures}
+\Crefname{figure}{Figure}{Figures}
+\crefname{table}{Table}{Tables}
+\Crefname{table}{Table}{Tables}
+\crefname{appendix}{Appendix}{Appendices}
+\Crefname{appendix}{Appendix}{Appendices}
+
+% Set up the appendices environment to correctly report the name to cref
+\xapptocmd\appendices{%
+  \crefalias{section}{appendix}%
+  \crefalias{subsection}{appendix}%
+  \crefalias{subsubsection}{appendix}%
+}{}{\PatchFailed}
+
+% Add an `inlineenumerate` environment for inline lists
+\newlist{inlineenumerate}{enumerate*}{1}
+\setlist[inlineenumerate]{label=(\roman*)}   % chktex 36 (suppress chktex warning about wanting a space before the parens)
+
+% Make sure we're placing no unnecessary line separation in lists like
+% enumerate/itemize
+\setlist{nosep}
+
+% Prevent LaTeX from complaining about `\\` in section titles and
+% such, which are used for providing the PDF bookmarks (that don't
+% support newlines)
+\pdfstringdefDisableCommands{%
+\def\\{}% Newline should become nothing
+\def\,{ }% A short space should become a real space
+\def\!{}% A negative space should become nothing
+}
+
+% Better defaults for tabularx. Set vertical centering on all `X` type
+% columns, and create a new column type `Y` that does horizontal
+% centering on top of `X`, and a new column type `Z` that does
+% right-alignment on top of `X`.
+\def\tabularxcolumn#1{m{#1}}
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+\newcolumntype{Z}{>{\hfill\arraybackslash}X}
+
+% Clear out a warning thrown by microtype
+\microtypecontext{spacing=nonfrench}
+
+% Improve the `outline` environment by coloring it to make it stand out a bit
+% (but don't have `\0` have any coloring).
+\newenvironment{outlineitemizeenv}{\begin{itemize}\color{MidnightBlue}}{\end{itemize}}
+\renewcommand*{\outlinei}{outlineitemizeenv}
+\renewcommand*{\outlineii}{outlineitemizeenv}
+\renewcommand*{\outlineiii}{outlineitemizeenv}
+\renewcommand*{\outlineiiii}{outlineitemizeenv}
+
+% Convenient RQ subsections, that can also be labeled and referred to via
+% regular commands. If you want a regular list, rather than subsections for
+% each, use the `researchquestions` environment defined below.
+\newcounter{rqcounter}
+\renewcommand*{\therqcounter}{RQ\arabic{rqcounter}}
+\newcommand*{\rqsubsection}[1]{%
+  \refstepcounter{rqcounter}%
+  \medbreak%
+  \noindent{}\enskip{}%
+  \textit{\therqcounter{}: #1}%
+  \smallskip%
+}
+
+% Convenient research-questions environment for defining RQs as a list. If you
+% want subsections instead of a list, use the `\rqsubsection` command instead.
+\newlist{researchquestions}{enumerate}{1}
+\setlist[researchquestions]{label={\bfseries RQ\arabic*.},ref={\bfseries \arabic*},labelindent=\parindent,leftmargin=*}
+\crefname{researchquestionsi}{\bfseries RQ}{\bfseries RQs}
+
+% Make listings nicer by default
+\lstset{
+  % Use the straight single quote, rather than the bent one
+  upquote=true,
+  % Allow backticks to add latex in the middle of listing
+  escapechar=`,
+  % Make each listing narrow-monospaced, and use small text
+  basicstyle=\footnotesize\ttfamily,
+  % Improve look of spacing
+  columns=spaceflexible,
+  % Don't drop spaces to fix column alignment
+  keepspaces=true,
+  % Show spaces inside strings
+  showstringspaces=true,
+  % But don't show spaces or tabs in general
+  showspaces=false,
+  % Nor show tabs
+  showtabs=false,
+  % Comments should be grayed out
+  commentstyle=\color[gray]{0.4},
+  % Place a nicer box around the code with a gray shadow (use `single` instead
+  % to just have a single line)
+  frame=shadowbox,
+  rulesepcolor=\color{gray},
+  % Automatically un-indent code, so that we don't have to have code in the
+  % LaTeX touch the left edge of the margin. Unfortunately lstautodedent is not
+  % on CTAN, so needs to be got from https://github.com/jubobs/lstautodedent
+  autodedent,
+}
+% Add the ability to get consistent line numbers in listings simply by adding a
+% `style=WithLineNos`
+\lstdefinestyle{WithLineNos}{
+  numbers=left,
+  firstnumber=auto,
+  numberblanklines=true,
+  numberstyle=\color{gray},
+  numbersep=5pt,
+  xleftmargin=15pt,
+}
+
+% Make it easier to define a short caption that repeats its prefix in the list
+% of figures, but has extra text in the main body.
+\newcommand*{\shortcaption}[2]{\caption[#1]{#1\@. \textit{#2}}}
+
+% Switch to alternate font only for the typewriter font
+\renewcommand*{\ttdefault}{cmtt}
+
+% Make epigraphs be at a reasonable width
+\setlength\epigraphwidth{.6\textwidth}
+
+% Make `\_` "smarter" by recognizing when it is in a tt context, thereby setting
+% itself to `\char95` (equivalent to `\string_`) which looks nicer
+%
+% Depending on use case, it might be helpful for this to be either defined via
+% `\iftt` or `\ifttdefault`, thus both of them are included here.
+%
+% References: https://tex.stackexchange.com/a/643285 and https://tex.stackexchange.com/a/511530
+\makeatletter
+\newcommand\ifttdefault{%
+  \edef\@tempa{\f@family}%
+  \edef\@tempb{\ttdefault}%
+  \ifx\@tempa\@tempb%
+    \expandafter\@firstoftwo%
+  \else
+    \expandafter\@secondoftwo%
+  \fi
+}
+\newcommand\iftt{%
+  \begingroup
+  \setbox0=\hbox{.}%
+  \setbox1=\hbox{M}%
+  \ifdim\wd0=\wd1
+    \expandafter\endgroup\expandafter\@firstoftwo%
+  \else
+    \expandafter\endgroup\expandafter\@secondoftwo%
+  \fi
+}
+\makeatother
+\def\_{\iftt{\char95}{\textunderscore}}
+
+% Important commands I think are always good to have, independent of paper
+\newcommand*{\naive}[0]{na\"{\i}ve\xspace}
+\newcommand*{\Naive}[0]{Na\"{\i}ve\xspace}
+\newcommand*{\naively}[0]{na\"{\i}vely\xspace}

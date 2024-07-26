@@ -1,0 +1,261 @@
+% -*- mode: latex; TeX-master: "./thesis" -*-
+
+% Allow using `\rowcolors` to set up alternating row colors using the
+% `table` option in `xcolor`. Unfortunately we can't send `[table]` as
+% an option to the `\usepackage{xcolor}` declaration because the
+% `listings` package complains for whatever reason. However, if we
+% pass the option this way, it seems fine. We _do_ need to declare
+% this before the document class though, weirdly enough.
+%
+% Also, we allow more color names using the `dvipsnames` option to
+% `colorx`.
+\PassOptionsToPackage{table,dvipsnames}{xcolor}
+% Allow urls to break across lines; useful for bibliography
+\PassOptionsToPackage{hyphens}{url}
+
+\documentclass[letterpaper,12pt]{cmuthesis}
+
+% CMU Thesis Class specific commands
+\Year{YEAR}
+\trnumber{TR Number from Catherine Copetas}
+\committee{
+  Harry Quarterback Bovik\\
+  Harry Quincy Bovik\\
+  Harry Quetzal Bovik\\
+  Harry Quantum Bovik (University of Awesome)
+}
+% Optional: \permission{} \support{} \disclaimer{}
+\permission{All Rights Reserved.}
+\keywords{
+  Bagels,
+  Pizza,
+  Space,
+  Awesome
+}
+\support{%
+  \scriptsize%
+  %
+  The work presented in this thesis was supported in part by
+  %
+  Raid Shadow Legends,
+  %
+  and
+  %
+  Nord VPN,
+  %
+  Any opinions, findings, and conclusions or recommendations expressed in this
+  thesis are those of the author and do not necessarily reflect the views of
+  these sponsors.
+}
+\additionalsupport{%
+  \scriptsize%
+  %
+  Chapter~\todo{N} includes work from co-authors partially supported: by
+  \todo{chapter-specific Raid Shadow Legends}
+  %
+  Any opinions, findings, and conclusions or recommendations expressed in this
+  thesis are those of the author and do not necessarily reflect the views of
+  these sponsors.
+}
+
+% Use modern PDF version, so that it doesn't complain about including PDFs (such
+% as for figures)
+\pdfminorversion=7
+
+% Nag about LaTeX stuff that we should do better
+\usepackage[l2tabu, orthodox]{nag}
+
+% Give some breathing room between paragraphs
+\setlength{\parskip}{0.5\baselineskip}
+
+% Useful packages
+\usepackage{cmap} % Make PDF copy-pasteable even in presence of ligatures
+\usepackage{microtype}
+\usepackage[
+backref, % Add backlinks from bibliography
+pagebackref, % Back-reference by page number
+pageanchor=true, % Put an anchor on every page
+plainpages=false, % false=>don't force plain Arabic numbering of pages
+pdfpagelabels, % Set PDF page labels
+bookmarks, % Add Acrobat bookmarks
+bookmarksnumbered, % Include section numbers in bookmarks
+pdfpagemode=UseOutlines, % Make Acrobat open with outlines open
+%% Alternate styling of links worth considering
+% colorlinks=true,linkcolor=OliveGreen,citecolor=blue,
+]{hyperref}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usepackage{afterpage}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{pifont}
+\usepackage{xspace}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{lstautodedent}
+\usepackage{authblk}
+\usepackage{subcaption}
+\usepackage[normalem]{ulem} % Add convenient \uline and \sout. The
+                            % `normalem` prevents `\emph` from being
+                            % overridden.
+\usepackage{tabularx}
+\usepackage[inline]{enumitem}  % Support inline lists, and more. See 00-preamble
+\usepackage[title]{appendix}
+\usepackage{pdflscape}
+\usepackage{placeins}
+\usepackage[super]{nth} % Allow easily using 1st, 2nd, ... using \nth{1}, ...
+\usepackage{outlines}
+\usepackage{lipsum}
+\usepackage{lineno} % Line numbering for draft-mode
+\usepackage[nameinlink]{cleveref} % 'nameinlink' option emulates look of \autoref for \cref
+\usepackage{xpatch} % Allow patching commands
+\usepackage{import} % Allow `\import`ed files to use their own directory location to provide relative paths.
+\usepackage{bookmark}
+\usepackage{etoolbox} % Make it easy to `\robustify` commands
+\usepackage{varwidth} % Similar to minipage, but specifies the max size, rather than exact size
+\usepackage{booktabs} % Improve the look of tables, providing \toprule, \midrule, \bottomrule
+\usepackage{afterpage}
+\usepackage[group-separator={,},group-minimum-digits={3}]{siunitx} % Provides a useful \num{..} that adds thousands commas
+\usepackage{epigraph} % Useful for quotations at start of paragraph, using `\epigraph`
+\usepackage{adjustbox} % Introduce `\adjustbox`, useful especially with the `keepaspectratio`
+\usepackage{appendix} % Provides the useful `appendices` and `subappendices` environments; the latter is useful for appendices inside a chapter
+\usepackage{rotating} % Provides `sidewaystable` and `sidewaysfigure` environments
+
+\usepackage[
+numbers, % Use numbers for citations
+sort, % Sort \cite{x,y,z} to be in order of bibliography
+]{natbib} % Needed for bibliographystyle "plainnat"; I am using "plain", but being able to sort is still useful, so I keep this around.
+% \usepackageR{times} % This was in the original template, but I am using lmodern instead
+\usepackage{lmodern}
+% \usepackage{newpxtext,newpxmath} % Maverick uses a variant of this (except this is the new one; looks a bit nicer at 11pt or lower)
+\usepackage{bold-extra} % Make sure that bold inside of texttt and listings works
+\usepackage[
+letterpaper,
+twoside,
+vscale=.8,
+hscale=.75,
+nomarginpar,
+hmarginratio=1:1, % Comment this line out to get more space on binding side (keep at 1:1 for general printing)
+]{geometry}
+
+\makeatletter
+\@ifpackagelater{listings}{2018/09/02}{
+  % Use `lstlinebgrd` fix from
+  % https://tex.stackexchange.com/a/451538/118781
+  %
+  % Looks like `listings` recently updated something that causes
+  % `lstlinebgrd` to break, and unfortunately, `lstlinebgrd` hasn't yet
+  % updated their code.
+  %
+  % We gate this behind a check against version of listings package
+  % since that allows us to work on older versions too.
+  \makeatletter
+  \let\old@lstKV@SwitchCases\lstKV@SwitchCases{}
+  \def\lstKV@SwitchCases#1#2#3{}
+  \makeatother
+  \usepackage{lstlinebgrd}
+  \makeatletter
+  \let\lstKV@SwitchCases\old@lstKV@SwitchCases{}
+  \lst@Key{numbers}{none}{%
+    \def\lst@PlaceNumber{\lst@linebgrd}%
+    \lstKV@SwitchCases{#1}%
+    {none:\\%
+      left:\def\lst@PlaceNumber{\llap{\normalfont{}
+          \lst@numberstyle{\thelstnumber}\kern\lst@numbersep}\lst@linebgrd}\\%
+      right:\def\lst@PlaceNumber{\rlap{\normalfont{}
+          \kern\linewidth{} \kern\lst@numbersep{}
+          \lst@numberstyle{\thelstnumber}}\lst@linebgrd}%
+    }{\PackageError{Listings}{Numbers #1 unknown}\@ehc}}
+  \makeatother
+}{
+  \usepackage{lstlinebgrd}
+}
+\makeatother
+
+% Make sure that we get section numbers up to sub-sub-sections too
+\setcounter{secnumdepth}{3}
+
+% Make it less likely to break a footnote across pages
+\interfootnotelinepenalty=10000
+
+% Import custom commands
+\input{00-common-preamble.tex}
+\input{00-paper-commands.tex}
+\input{00-gitinfo.tex}
+
+\ifsubmit{}
+\else
+  \draftstamp{DRAFT}{\gitcommitdate---\texttt{\gitcommit}}
+\fi
+
+% JB: I believe the default for baselinestretch is just 1, but I have seen a
+% bunch of theses give more breathing room to the text within it, so I've bumped
+% this up a little bit, hopefully making for better readability.
+\renewcommand*{\baselinestretch}{1.2}
+
+\newcommand*{\thesistitle}{Some Fun Results\texorpdfstring{\\}{ }towards Good Pizza}
+\title{\textbf{\thesistitle}}
+\author{hopefully-soon-to-be-dr. you}
+\date{Month Year}
+
+\begin{document}
+\frontmatter{}
+\pagestyle{empty}
+\ifsubmit%
+  \thispdfpagelabel{}
+  \pdfbookmark[-1]{\thesistitle}{title}
+\else
+  \pdfbookmark{\thesistitle}{title}
+\fi
+\maketitle
+
+\begin{dedication}
+  To the author of this wonderful \LaTeX{} template
+\end{dedication}
+
+\pagestyle{plain}
+
+\begin{abstract}
+  \pdfbookmark{Abstract}{abstract}
+  %
+  In the past N years, my blood, sweat, and tears showed us that the past N
+  years have passed. This thesis demonstrates that this is likely due to the
+  passage of time. Pizza helps though.
+\end{abstract}
+
+\begin{acknowledgments}
+  \pdfbookmark{Acknowledgments}{acknowledgments}
+  I thank pizza for making this possible. Could not have done this work without you.
+\end{acknowledgments}
+
+\hypersetup{next-anchor=toc}
+\tableofcontents
+\bookmark[dest=\HyperDestNameFilter{toc},level=chapter]{Contents}
+\hypersetup{next-anchor=lof}
+\listoffigures
+\bookmark[dest=\HyperDestNameFilter{lof},level=chapter]{List of Figures}
+\hypersetup{next-anchor=lot}
+\listoftables
+\bookmark[dest=\HyperDestNameFilter{lot},level=chapter]{List of Tables}
+
+\mainmatter{}
+\input{chapters/intro/chapter.tex}
+\input{chapters/background/chapter.tex}
+% \input{chapters/foo/chapter.tex}
+% \input{chapters/bar/chapter.tex}
+% \input{chapters/baz/chapter.tex}
+\input{chapters/conclusion/chapter.tex}
+
+\backmatter{}
+% By default \bibsection is \chapter*, but we really want this to show
+% up in the table of contents and pdf bookmarks.
+\renewcommand*{\bibsection}{\chapter{\bibname}}
+%\renewcommand*{\bibpreamble}{This text goes between the ``Bibliography''
+%  header and the actual list of references}
+\bibliographystyle{plain}
+\bibliography{bib}
+
+% \begin{appendices}
+% \end{appendices}
+
+\end{document}
